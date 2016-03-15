@@ -1,0 +1,33 @@
+<template name="s3Link">
+  <a href="{{url}}" target="_blank">{{url}}</a>
+</template>
+
+
+<template name="s3UploadFileForm">
+  <form id="s3UploadFile">
+    <input type="file" placeholder="Click or drop a file here">
+  </form>
+</template>
+
+
+<template name="s3UploadURLForm">
+  <form id="s3UploadURL">
+    <input class=".s3-url-input" type="text" placeholder="Paste a URL here">
+    <button type="submit">Send file</button>
+  </form>
+</template>
+
+
+<template name="s3URLs">
+  <div class="s3URLs">
+    <ul>
+      {{#each urls}}
+        <li>
+          {{> s3Link}}
+        </li>
+      {{else}}
+        <li>No files uploaded yet!</li>
+      {{/each}}
+    </ul>
+  </div>
+</template>

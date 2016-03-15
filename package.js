@@ -2,7 +2,7 @@ var packages = [
   'aldeed:http@0.2.2',
   'blaze-html-templates',
   'check',
-  'edgee:slingshot@0.7.1',
+  'lepozepo:s3@5.1.6',
   'ejson',
   'http',
   'jquery',

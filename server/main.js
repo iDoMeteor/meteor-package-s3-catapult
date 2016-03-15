@@ -1,48 +1,51 @@
+http = Npm.require('http');
 var mb = Meteor.settings.slingshot.maxMB;
 var types = Meteor.settings.slingshot.mimeTypes;
 
-Slingshot.fileRestrictions( "sendToS3", {
-  allowedFileTypes: types,
-  maxSize: mb * 1024 * 1024
-});
-
-Slingshot.createDirective( "sendToS3", Slingshot.S3Storage, {
-  acl: Meteor.settings.AWSACL,
-  authorize: function () {
-    return true;
-  },
+S3.config = {
   bucket: Meteor.settings.AWSBucketName,
-  key: function (file) {
-    return encodeURIComponent(
-      file.name
-    );
-  },
+  key: Meteor.settings.AWSAccessKeyId,
+  secret: Meteor.settings.AWSSecretAccessKey,
   region: Meteor.settings.AWSRegion || 'us-east-1',
-});
+}
 
 Meteor.methods({
 
-  s3GetURL: function(url) {
+  s3GetURL: function(src) {
 
-    check(url, String);
-    if (!S3.isValidURL(url)) {
+    check(src, String);
+    if (!S3.isValidURL(src)) {
       throw new Meteor.Error('invalid-url', 'Not fetching invalid URL');
     }
 
-    var result = HTTP.call('GET', url, {
-      responseType: 'buffer',
-      timeout: Meteor.settings.public.httpTimeout,
-    });
+    http.get(src, Meteor.bindEnvironment(function(result){
 
-    // try making file from blob here and returning
-    // try faking input.files[0]
-    // try appending into dom
-    // try saving to fs
-    // try jquery.ajax
-    // try request
+      var headers = {
+        'Content-Length': result.headers['content-length'],
+        'Content-Type': result.headers['content-type'],
+      };
+      var name = src.substr(src.lastIndexOf('/') + 1);
 
-    result.content = new Buffer(result.content).toString('base64');
-    return result;
+      S3.knox.putStream(
+        result,
+        name,
+        headers,
+        Meteor.bindEnvironment(function(err, res) {
+          var target = (
+            res
+            && res.req
+            && res.req.url
+          ) ? res.req.url : null;
+          S3.postProcessFetch(
+            err,
+            target,
+            src
+          );
+          res.resume();
+          console.log('done!');
+        }));
+
+    }));
 
   },
 

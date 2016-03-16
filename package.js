@@ -2,9 +2,9 @@ var packages = [
   'aldeed:http@0.2.2',
   'blaze-html-templates',
   'check',
+  'edgee:slingshot@0.7.1',
   'lepozepo:s3@5.1.6',
   'ejson',
-  'http',
   'jquery',
   'logging',
   'meteor-base',
@@ -37,7 +37,7 @@ Package.describe({
   name: 'idometeor:s3-catapult',
   version: '0.0.1',
   // Brief, one-line summary of the package.
-  summary: 'Template for sending a file or URL to Amazon S3 using client resources.',
+  summary: 'Provides Blaze templates for sending files to Amazon S3 via file input or URL.',
   // URL to the Git repository containing the source code for this package.
   git: 'http://github.com/iDoMeteor/meteor-s3-catapult',
   // By default, Meteor will default to using README.md for documentation.

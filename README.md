@@ -18,30 +18,83 @@ You will need to create an S3 bucket with the following CORS configuration:
   </CORSRule>
 </CORSConfiguration>
 ```
-
 Enter this by clicking on the bucket name, then Properties -> Permissions -> Edit CORS Configuration.
 
 You must also create a set of security keys and put them in the appropriate place in the settings file.
+
+## Meteor.settings
+
+<dl>
+  <dt>AWSACL</dt>
+  <dd>
+    Amazon Web Services Access Control List for sent files
+  </dd>
+  <dt>AWSAccessKeyId</dt>
+  <dd>
+    Your AWS access key
+  </dd>
+  <dt>AWSBucketName</dt>
+  <dd>
+    The name of your S3 bucket
+  </dd>
+  <dt>AWSRegion</dt>
+  <dd>
+    The x-xx-x string representing your bucket region, if not us-east-1
+  </dd>
+  <dt>AWSSecretAccessKey</dt>
+  <dd>
+    Your AWS secret key
+  </dd>
+  <dt>debug</dt>
+  <dd>
+    If set to true, output debugging messages, otherwise do not
+  </dd>
+  <dt>public.debug</dt>
+  <dd>
+    Same as above but for client-side messages
+  </dd>
+  <dt>public.httpTimeout</dt>
+  <dd>
+    Max amount of time to wait for return for file transfer from client-side URL to finish
+  </dd>
+  <dt>Catapult.mimeTypes</dt>
+  <dd>
+    List of MIME type codes to accept for client-side URL transfers
+  </dd>
+  <dt>Catapult.maxMB</dt>
+  <dd>
+    Max file size for client-side URL transfers
+  </dd>
+  <dt>Catapult.saveSourceLinksToDb</dt>
+  <dd>
+    Keep log of source links, feature not yet available
+  </dd>
+  <dt>Catapult.saveTargetLinksToDb</dt>
+  <dd>
+    Keep log of source links for s3URLs helper, currently always true
+  </dd>
+</dl>
 
 ## Packages
 
 Relies on the following packages:
 
-* audit-argument-checks
+* aldeed:http
 * blaze-html-templates
 * check
 * edgee:slingshot
 * ejson
-* http
 * jquery
+* lepozepo:s3
 * logging
 * meteor-base
-* mobile-experience
 * mongo
+* npm.http
 * random
 * reload
 * spacebars
 * tracker
+* underscore
 
 ## Templates
 
@@ -78,7 +131,7 @@ inside one of your other application templates.
   </dd>
   <dt>getFileFromURL</dt>
   <dd>
-    Returns the file retrieved from a URL
+    Returns the file retrieved from a URL to the client, unused
   </dd>
   <dt>insertURL</dt>
   <dd>
@@ -100,13 +153,21 @@ inside one of your other application templates.
   <dd>
     Returns true if a passed string looks like a URL
   </dd>
+  <dt>log</dt>
+  <dd>
+    Processes debugging messages
+  </dd>
   <dt>pressedEnter</dt>
   <dd>
     Returns true if passed a keypress event & enter was pressed
   </dd>
-  <dt>postProcess</dt>
+  <dt>postProcessAmazon</dt>
   <dd>
-    Updates client-side DOM w/error/success messages
+    Ensures all went well with xfer to Amazon then calls the URL insertion
+  </dd>
+  <dt>postProcessInsert</dt>
+  <dd>
+    Just logs success or failure of call to s3InsertURL
   </dd>
   <dt>sanitizeFileName</dt>
   <dd>
@@ -114,7 +175,7 @@ inside one of your other application templates.
   </dd>
   <dt>sendFile</dt>
   <dd>
-    Takes a file passed to file input and sends it to S3
+    Validates a file passed to file input and sends it to sendToAmazon
   </dd>
   <dt>sendToAmazon</dt>
   <dd>
@@ -122,7 +183,7 @@ inside one of your other application templates.
   </dd>
   <dt>sendURL</dt>
   <dd>
-    Takes the content from a URL and sends it to S3
+    Validates a URL and sends it to Meteor.call('s3GetURL', url);
   </dd>
   <dt>urlExists</dt>
   <dd>
@@ -133,7 +194,7 @@ inside one of your other application templates.
 ## Browser Policy
 
 If the MDG Browser Policy package is detected, we will add \*.s3.amazonaws.com
-to the allowOriginForAll policy.
+to the allowOriginForAll policy.  Probably won't work without it. :)
 
 ## Collections
 
@@ -144,22 +205,21 @@ side manipulations are allowed.
 ## Publication & Subscriptions
 
 The URLs collection is published to clients and subscribed to when the 's3URLs'
-template is created.
+template is created.  All allow rules return true, as do all the deny rules,
+thereby only allowing db manipulation from server-side code.
 
 ## Meteor Methods
 
 <dl>
+  <dt>s3GetURL</dt>
+  <dd>
+    Downloads a file from a given URL *and* sends it to Amazon
+  </dd>
   <dt>s3InsertURL</dt>
   <dd>
     Safely inserts a validated URL into the URLs collection
   </dd>
 </dl>
-
-## Slingshot
-
-Slingshot facilitates S3 session management and related features.  You
-can configure it using the Meteor settings provided in the example JSON
-settings file.
 
 ## Template Helpers
 
@@ -173,14 +233,14 @@ settings file.
 ## Template Events
 
 <dl>
-  <dt>s3UploadURLForm</dt>
-  <dd>
-    If the user presses enter in the input field or clicks submit, the URL
-    will be tested for validity and then streamed to S3
-  </dd>
   <dt>s3UploadFileForm</dt>
   <dd>
     When the user selects or drops a file on the input area, the file will be
     send to S3
+  </dd>
+  <dt>s3UploadURLForm</dt>
+  <dd>
+    If the user presses enter in the input field or clicks submit, the URL
+    will be tested for validity and then streamed to S3
   </dd>
 </dt>

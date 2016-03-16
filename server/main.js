@@ -1,6 +1,6 @@
 http = Npm.require('http');
-var mb = Meteor.settings.slingshot.maxMB;
-var types = Meteor.settings.slingshot.mimeTypes;
+var mb = Meteor.settings.Catapult.maxMB;
+var types = Meteor.settings.Catapult.mimeTypes;
 
 S3.config = {
   bucket: Meteor.settings.AWSBucketName,
@@ -8,6 +8,25 @@ S3.config = {
   secret: Meteor.settings.AWSSecretAccessKey,
   region: Meteor.settings.AWSRegion || 'us-east-1',
 }
+
+Slingshot.fileRestrictions( "sendToS3", {
+  allowedFileTypes: types,
+  maxSize: mb * 1024 * 1024
+});
+
+Slingshot.createDirective( "sendToS3", Slingshot.S3Storage, {
+  acl: Meteor.settings.AWSACL,
+  authorize: function () {
+    return true;
+  },
+  bucket: Meteor.settings.AWSBucketName,
+  key: function (file) {
+    return encodeURIComponent(
+      file.name
+    );
+  },
+  region: Meteor.settings.AWSRegion || 'us-east-1',
+});
 
 Meteor.methods({
 
@@ -17,6 +36,7 @@ Meteor.methods({
     if (!S3.isValidURL(src)) {
       throw new Meteor.Error('invalid-url', 'Not fetching invalid URL');
     }
+    src = src.replace(/^https/, 'http');
 
     http.get(src, Meteor.bindEnvironment(function(result){
 
@@ -36,14 +56,16 @@ Meteor.methods({
             && res.req
             && res.req.url
           ) ? res.req.url : null;
-          S3.postProcessFetch(
-            err,
-            target,
-            src
-          );
+          S3.postProcessAmazon({
+            error: err,
+            target: target,
+            source: src,
+          });
           res.resume();
-          console.log('done!');
+          S3.log('S3 DEBUG Finished sending stream to Amazon.');
         }));
+
+        S3.log('S3 DEBUG Finished receiving stream from URL.');
 
     }));
 

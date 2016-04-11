@@ -1,4 +1,4 @@
-# @iDoMeteor S3 Uploader v0.0.1
+# @iDoMeteor S3 Uploader v0.0.2
 
 ## S3 Configuration
 
@@ -213,7 +213,8 @@ thereby only allowing db manipulation from server-side code.
 <dl>
   <dt>s3GetURL</dt>
   <dd>
-    Downloads a file from a given URL *and* sends it to Amazon
+    Downloads a file from a given URL and sends it to Amazon, with optional name
+    and prefix parameters.
   </dd>
   <dt>s3InsertURL</dt>
   <dd>
@@ -244,3 +245,11 @@ thereby only allowing db manipulation from server-side code.
     will be tested for validity and then streamed to S3
   </dd>
 </dt>
+
+
+## Version History
+
+### v0.0.2
+
+* Added optional name and prefix parameters to sendURL and s3GetURL
+

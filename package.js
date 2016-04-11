@@ -35,11 +35,11 @@ var filesServer = [
 
 Package.describe({
   name: 'idometeor:s3-catapult',
-  version: '0.0.1',
+  version: '0.0.2',
   // Brief, one-line summary of the package.
   summary: 'Provides Blaze templates for sending files to Amazon S3 via file input or URL.',
   // URL to the Git repository containing the source code for this package.
-  git: 'http://github.com/iDoMeteor/meteor-s3-catapult',
+  git: 'http://github.com/iDoMeteor/meteor-package-s3-catapult',
   // By default, Meteor will default to using README.md for documentation.
   // To avoid submitting documentation, set this field to null.
   documentation: 'README.md'
@@ -53,11 +53,12 @@ Package.onUse(function(api) {
   api.addFiles(filesClient, 'client');
   api.export([
     'S3',
+    's3URLs',
   ]);
 });
 
 Package.onTest(function(api) {
   api.use('tinytest');
   api.use('idometeor:s3-catapult');
-  api.addFiles('s3-catapult-tests.js');
+  api.addFiles('tests/s3-catapult-tests.js');
 });
